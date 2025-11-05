@@ -23,20 +23,9 @@ except ImportError:
     HAS_GTDA = False
 
 try:
-    import sys
-    from pathlib import Path
-    # Try to import nio - may need to be installed or in path
-    try:
-        from nio import BatAlgorithm, CulturalAlgorithm, PhilippineEagleOptimization
-        HAS_NIO = True
-    except ImportError:
-        # Try adding parent directory to path
-        parent_dir = Path(__file__).parent.parent.parent
-        if str(parent_dir) not in sys.path:
-            sys.path.insert(0, str(parent_dir))
-        from nio import BatAlgorithm, CulturalAlgorithm, PhilippineEagleOptimization
-        HAS_NIO = True
-except Exception:
+    from nio import BatAlgorithm, CulturalAlgorithm, PhilippineEagleOptimization
+    HAS_NIO = True
+except ImportError:
     HAS_NIO = False
 
 
