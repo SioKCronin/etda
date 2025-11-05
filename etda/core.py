@@ -415,19 +415,18 @@ class ETDAOptimizer:
             ]
         
         # Extract bounds for swarmopt
-        # swarmopt uses velocity_clamp for initialization bounds and velocity limits
-        # We need to provide search space bounds
+        # swarmopt uses velocity_clamp as (min, max) for search space bounds
+        # and also for velocity limits
         val_min = min(b[0] for b in bounds)
         val_max = max(b[1] for b in bounds)
         
-        # velocity_clamp is used for both initialization and velocity limits
-        # Default: velocity clamped to 20% of search space range
+        # velocity_clamp defines the search space bounds in swarmopt
+        # If not provided, use computed bounds
         velocity_clamp = kwargs.pop('velocity_clamp', None)
         if velocity_clamp is None:
-            space_range = val_max - val_min
-            velocity_clamp = (-space_range * 0.2, space_range * 0.2)
+            velocity_clamp = (val_min, val_max)
         
-        # Store bounds for objective function clamping
+        # Store bounds for objective function clamping (individual dimension bounds)
         self._search_bounds = bounds
         
         # Create objective wrapper
