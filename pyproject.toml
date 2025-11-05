@@ -26,11 +26,8 @@ dependencies = [
     "giotto-tda>=1.2.0",
     "numpy>=1.20",
     "scikit-learn>=1.0",
+    "swarmopt>=0.2.0",
 ]
-
-# Note: nio (Nature-Inspired Optimization) is required but not listed here
-# as it should be installed separately from its own repository:
-# https://github.com/SioKCronin/nature-inspired-optimisation
 
 [project.optional-dependencies]
 dev = [

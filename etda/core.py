@@ -23,10 +23,10 @@ except ImportError:
     HAS_GTDA = False
 
 try:
-    from nio import BatAlgorithm, CulturalAlgorithm, PhilippineEagleOptimization
-    HAS_NIO = True
+    from swarmopt import Swarm
+    HAS_SWARMOPT = True
 except ImportError:
-    HAS_NIO = False
+    HAS_SWARMOPT = False
 
 
 @dataclass
@@ -306,10 +306,9 @@ class ETDAOptimizer:
             raise ImportError(
                 "giotto-tda is required. Install with: pip install giotto-tda"
             )
-        if not HAS_NIO:
+        if not HAS_SWARMOPT:
             raise ImportError(
-                "nio is required. Install with: pip install -e ../library-of-nature-inspired-optimization "
-                "or ensure nio is in your Python path"
+                "swarmopt is required. Install with: pip install swarmopt"
             )
         
         self.roi_data = roi_data
@@ -379,7 +378,7 @@ class ETDAOptimizer:
     def optimize(
         self,
         objective: Optional[Callable[[np.ndarray], float]] = None,
-        algorithm: str = "bat",
+        algorithm: str = "global",
         iterations: int = 200,
         population_size: int = 40,
         bounds: Optional[List[Tuple[float, float]]] = None,
@@ -389,11 +388,11 @@ class ETDAOptimizer:
         
         Args:
             objective: Objective function (if None, uses default)
-            algorithm: Algorithm name ("bat", "cultural", "philippine_eagle")
-            iterations: Number of iterations
-            population_size: Population size
+            algorithm: Algorithm name ("global", "local", "fips", "cpso", "multiswarm")
+            iterations: Number of iterations (epochs)
+            population_size: Population size (n_particles)
             bounds: Bounds for reduced space (auto-computed if None)
-            **kwargs: Additional arguments for optimizer
+            **kwargs: Additional arguments for Swarm optimizer
             
         Returns:
             (best_position_in_reduced_space, best_value)
@@ -415,6 +414,22 @@ class ETDAOptimizer:
                 for i in range(self.reduced_dim)
             ]
         
+        # Extract bounds for swarmopt
+        # swarmopt uses velocity_clamp for initialization bounds and velocity limits
+        # We need to provide search space bounds
+        val_min = min(b[0] for b in bounds)
+        val_max = max(b[1] for b in bounds)
+        
+        # velocity_clamp is used for both initialization and velocity limits
+        # Default: velocity clamped to 20% of search space range
+        velocity_clamp = kwargs.pop('velocity_clamp', None)
+        if velocity_clamp is None:
+            space_range = val_max - val_min
+            velocity_clamp = (-space_range * 0.2, space_range * 0.2)
+        
+        # Store bounds for objective function clamping
+        self._search_bounds = bounds
+        
         # Create objective wrapper
         if objective is None:
             # Default: maximize distance from mean (explore manifold)
@@ -430,41 +445,42 @@ class ETDAOptimizer:
             # Work directly in reduced space
             wrapped_objective = objective
         
-        # Initialize optimizer
-        if algorithm == "bat":
-            optimizer = BatAlgorithm(
-                objective=wrapped_objective,
-                bounds=bounds,
-                population_size=population_size,
-                seed=self.random_state,
-                **kwargs,
-            )
-        elif algorithm == "cultural":
-            optimizer = CulturalAlgorithm(
-                objective=wrapped_objective,
-                bounds=bounds,
-                population_size=population_size,
-                seed=self.random_state,
-                **kwargs,
-            )
-        elif algorithm == "philippine_eagle":
-            optimizer = PhilippineEagleOptimization(
-                objective=wrapped_objective,
-                bounds=bounds,
-                population_size=population_size,
-                seed=self.random_state,
-                **kwargs,
-            )
-        else:
-            raise ValueError(
-                f"Unknown algorithm: {algorithm}. "
-                f"Choose from: bat, cultural, philippine_eagle"
-            )
+        # Set random seed if provided
+        if self.random_state is not None:
+            np.random.seed(self.random_state)
+        
+        # Initialize Swarm optimizer
+        # swarmopt expects objective function to accept numpy array
+        # Also need to clamp positions to bounds
+        def swarm_objective(position: np.ndarray) -> float:
+            """Wrapper for swarmopt objective function with bounds clamping."""
+            # Clamp position to search bounds
+            clamped_position = np.clip(position, val_min, val_max)
+            return float(wrapped_objective(clamped_position))
+        
+        optimizer = Swarm(
+            n_particles=population_size,
+            dims=self.reduced_dim,
+            c1=kwargs.pop('c1', 2.0),
+            c2=kwargs.pop('c2', 2.0),
+            w=kwargs.pop('w', 0.9),
+            epochs=iterations,
+            obj_func=swarm_objective,
+            algo=algorithm,
+            velocity_clamp=velocity_clamp,
+            inertia_func=kwargs.pop('inertia_func', 'linear'),
+            velocity_clamp_func=kwargs.pop('velocity_clamp_func', 'basic'),
+            **kwargs,  # Pass through any remaining kwargs
+        )
         
         # Run optimization
-        best_position, best_value = optimizer.run(iterations=iterations)
+        optimizer.optimize()
         
-        return np.array(best_position), best_value
+        # Extract results (swarmopt sets best_pos and best_cost as attributes)
+        best_position = np.array(optimizer.best_pos)
+        best_value = float(optimizer.best_cost)
+        
+        return best_position, best_value
     
     def get_persistence_info(self) -> Dict[str, Any]:
         """Get information about persistence homology results.

@@ -14,7 +14,7 @@ ETDA uses persistence homology to:
 - **Persistent Homology Analysis**: Uses giotto-tda to compute persistence diagrams
 - **Manifold Reduction**: Reduces high-dimensional search spaces to lower-dimensional manifolds
 - **Global Optima Identification**: Identifies critical points and global maxima on the topological structure
-- **Swarm Optimization Integration**: Works with nio (Nature-Inspired Optimization) algorithms
+- **Swarm Optimization Integration**: Works with swarmopt (Particle Swarm Optimization)
 - **Health Data Focus**: Designed for large-scale health data optimization problems
 
 ## Installation
@@ -28,7 +28,7 @@ pip install -e .
 - **giotto-tda**: Topological data analysis
 - **numpy**: Numerical computations
 - **scikit-learn**: Machine learning utilities
-- **nio**: Nature-inspired optimization (swarm algorithms) - install separately
+- **swarmopt**: Particle swarm optimization (automatically installed via pip)
 
 ## Quick Start
 

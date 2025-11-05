@@ -387,7 +387,7 @@ def main():
         # The optimizer handles the mapping from reduced to original space
         best_config_reduced, best_accuracy = optimizer.optimize(
             objective=wrapped_objective,
-            algorithm='bat',
+            algorithm='global',  # swarmopt algorithm: 'global', 'local', 'fips', 'cpso', 'multiswarm'
             iterations=100,  # Reduced for faster demo
             population_size=30,
         )
@@ -427,7 +427,7 @@ def main():
     except ImportError as e:
         print(f"  ⚠ ETDA dependencies not available: {e}")
         print("  Install with: pip install -e .")
-        print("  Also install nio: pip install -e ../library-of-nature-inspired-optimization")
+        print("  This will automatically install swarmopt and other dependencies")
         print()
     
     print("=" * 70)

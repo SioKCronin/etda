@@ -93,8 +93,9 @@ To use real HD data from the paper:
 **ImportError: No module named 'sklearn'**
 - Install: `pip install scikit-learn`
 
-**ImportError: No module named 'nio'**
-- Install nio: `pip install -e ../library-of-nature-inspired-optimization`
+**ImportError: No module named 'swarmopt'**
+- Install swarmopt: `pip install swarmopt`
+- Or install ETDA which includes it: `pip install -e .`
 
 **ImportError: No module named 'gtda'**
 - Install: `pip install giotto-tda`
