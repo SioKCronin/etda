@@ -4,10 +4,11 @@ ETDA integrates swarm optimization algorithms with topological data analysis (TD
 
 ## Overview
 
-ETDA uses persistence homology to:
-1. **Reduce large-scale multidimensional spaces** - Map high-dimensional regions of interest to lower-dimensional manifolds
-2. **Identify global maxima** - Use TDA to find critical points on the topological structure
-3. **Optimize with swarm intelligence** - Apply nature-inspired algorithms on the reduced space
+ETDA couples persistence homology with swarm intelligence through the following workflow:
+1. **Reduce large-scale multidimensional spaces with TDA** – Run Mapper / persistent homology / UMAP-PCA pipelines to capture dominant manifolds or cluster signatures, then export the reduced coordinates as the search domain.
+2. **Define the optimization problem on the reduced representation** – Express objectives and constraints (e.g., Wasserstein distances, Betti targets, ROI metrics) directly in the reduced space; solutions can be lifted back to the original coordinates afterward.
+3. **Run swarm optimization to find the global optimum** – Apply nature-inspired algorithms (Bat, PSO variants, Water Cycle, etc.) on the reduced manifold to explore and exploit efficiently.
+4. **Validate and interpret the best solution** – Map the swarm-derived optimum back to the high-dimensional space and perform domain checks (dose limits, mechanistic plausibility, health-data constraints) before deployment.
 
 ## Key Features
 
