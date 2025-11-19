@@ -79,3 +79,5 @@ See `examples/high_dim_roi_example.py` for a complete example demonstrating:
 
 This project is licensed under the [MIT License](LICENSE), the same permissive license used across our other optimization projects (e.g., swarmopt). You are free to use, modify, and distribute ETDA so long as the MIT notice is preserved.
 
+> **Limited Liability Notice:** ETDA is provided “as-is” under the MIT license, without warranties of any kind. You assume all liability and responsibility for any systems, analyses, or decisions that use this software.
+
