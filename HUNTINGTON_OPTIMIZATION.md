@@ -89,7 +89,7 @@ def objective(x):
     return accuracy - sparsity_penalty  # Maximize this
 ```
 
-## Why ETDA is Perfect for This Problem
+## Why ETDA is Good for This Problem
 
 ### 1. **High-Dimensional Feature Space**
 - **Problem**: 250+ features create a complex search space
